@@ -33,7 +33,24 @@ export class Game extends Scene {
         this.platforms.create(600, 400, 'ground');
         this.platforms.create(50, 250, 'ground');
         this.platforms.create(750, 220, 'ground');
+        
+       this.stars = this.physics.add.group({
+            key: "star",
+            repeat:11,
+            setXY:{
+                x: 12,
+                y: 0,
+                stepX:70,
+            }
+        });
 
+        this.stars.children.iterate((star: any) => {
+            star.setBounceY(Phaser.Math.FloatBetween(0.4,0.8));
+            return null;
+        })
+
+        this.physics.add.collider(this.stars, this.platforms);
+        
         this.player = this.physics.add.sprite(100, 450, 'dude');
 
         this.player.setBounce(0.2);
