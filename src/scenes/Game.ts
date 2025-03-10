@@ -59,7 +59,7 @@ export class Game extends Scene {
         });
         Phaser.Utils.Array.Shuffle(deck);
         return deck;
-      
+      }
         //sets up card layout, creates draw and discard pile, starts card interations
         function dealCards(deck,scene) {
           const cardWidth = 85;
@@ -92,15 +92,54 @@ export class Game extends Scene {
         
             handleCardInteraction(scene,cardSprite,discardPile,allCards,discardedCards);
           }
+          //puts cards in draw pile
           scene.drawPileCards = [];
           for(let i=0; i<deck.length;i++) {
             let card = deck[i];
             let cardSprite = createCardSprite(scene,card,{x:drawPile,y:drawPile.y},true,true);
             scene.drawPileCards.push(cardSprite);
           }
+          //handles draw pile behavior
           handleDrawPileClick(scene,drawPile,discardPile,allCards,discardedCards);
         }
-    }
 
+        //calculates the exact positions for each card to place them at the start of the game
+        function calculatePositions(row4Start,cardWidth,cardSpacing,rowSpacing) {
+          return [
+            {x:row4Start.x+1.5*(cardWidth+cardSpacing),y:row4Start.y-3*rowSpacing},
+            {x:row4Start.x+4.5*(cardWidth+cardSpacing),y:row4Start.y-3*rowSpacing},
+            {x:row4Start.x+7.5*(cardWidth+cardSpacing),y:row4Start.y-3*rowSpacing},
+        
+            {x:row4Start.x+(cardWidth+cardSpacing),y:row4Start.y-2*rowSpacing},
+            {x:row4Start.x+2*(cardWidth+cardSpacing),y:row4Start.y-2*rowSpacing},
+            {x:row4Start.x+4*(cardWidth+cardSpacing),y:row4Start.y-2*rowSpacing},
+            {x:row4Start.x+5*(cardWidth+cardSpacing),y:row4Start.y-2*rowSpacing},
+            {x:row4Start.x+7*(cardWidth+cardSpacing),y:row4Start.y-2*rowSpacing},
+            {x:row4Start.x+8*(cardWidth+cardSpacing),y:row4Start.y-2*rowSpacing},
+        
+            {x:row4Start.x+(cardWidth/2+cardSpacing),y:row4Start.y-rowSpacing},
+            {x:row4Start.x+1.5*(cardWidth+cardSpacing),y:row4Start.y-rowSpacing},
+            {x:row4Start.x+2.5*(cardWidth+cardSpacing),y:row4Start.y-rowSpacing},
+            {x:row4Start.x+3.5*(cardWidth+cardSpacing),y:row4Start.y-rowSpacing},
+            {x:row4Start.x+4.5*(cardWidth+cardSpacing),y:row4Start.y-rowSpacing},
+            {x:row4Start.x+5.5*(cardWidth+cardSpacing),y:row4Start.y-rowSpacing},
+            {x:row4Start.x+6.5*(cardWidth+cardSpacing),y:row4Start.y-rowSpacing},
+            {x:row4Start.x+7.5*(cardWidth+cardSpacing),y:row4Start.y-rowSpacing},
+            {x:row4Start.x+8.5*(cardWidth+cardSpacing),y:row4Start.y-rowSpacing},
+        
+            {x:row4Start.x,y:row4Start.y},
+            {x:row4Start.x+(cardWidth+cardSpacing),y:row4Start.y},
+            {x:row4Start.x+2*(cardWidth+cardSpacing),y:row4Start.v
+            {x:row4Start.x+3*(cardWidth+cardSpacing),y:row4Start.y},
+            {x:row4Start.x+4*(cardWidth+cardSpacing),y:row4Start.y},
+            {x:row4Start.x+5*(cardWidth+cardSpacing),y:row4Start.y},
+            {x:row4Start.x+6*(cardWidth+cardSpacing),y:row4Start.y},
+            {x:row4Start.x+7*(cardWidth+cardSpacing),y:row4Start.y},
+            {x:row4Start.x+8*(cardWidth+cardSpacing),y:row4Start.y},
+            {x:row4Start.x+9*(cardWidth+cardSpacing),y:row4Start.y},
+          ];
+        }
     
+    
+  }
 }
