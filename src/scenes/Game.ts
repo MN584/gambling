@@ -129,7 +129,7 @@ export class Game extends Scene {
         
             {x:row4Start.x,y:row4Start.y},
             {x:row4Start.x+(cardWidth+cardSpacing),y:row4Start.y},
-            {x:row4Start.x+2*(cardWidth+cardSpacing),y:row4Start.v
+            {x:row4Start.x+2*(cardWidth+cardSpacing),y:row4Start.v},
             {x:row4Start.x+3*(cardWidth+cardSpacing),y:row4Start.y},
             {x:row4Start.x+4*(cardWidth+cardSpacing),y:row4Start.y},
             {x:row4Start.x+5*(cardWidth+cardSpacing),y:row4Start.y},
@@ -139,7 +139,47 @@ export class Game extends Scene {
             {x:row4Start.x+9*(cardWidth+cardSpacing),y:row4Start.y},
           ];
         }
+        //creates and initialized card sprite (face up/down, draw pile)
+        function createCardSprite(scene,card,position,isFaceDown,isFromDrawPile = false) {
+          let cardSprite = scene.add.image(position.x,position.y,isFaceDown?"card_back":`${card.suit}-${card.value}`);
+          //attached card data to sprite, allowing info to be carried and stored
+          cardSprite.setData("card",card);
+          //if card isnt from the draw pile, its made interactive (clicks, mousovers, cursor)
+          if(!isFromDrawPile)
+            cardSprite.setInteractive({cursor:'pointer'});
+          cardSprite.displayWidth = 85;
+          cardSprite.displayHeight = 128;
+          return cardSprite;
+        }
+
+        function handleCardInteraction(scene,cardSprite,discardPile,allCards,discardedCards){
+          cardSprite.on("pointerdown",function(pointer){
+            let topCardData = discardPile.getData("topCard");
+            if(topCardData == undefined)
+              return;
+            let cardData = cardSprite.getData("card");
+            let key = `${cardData.suit}-${cardData.value}`;
+            if(isDifferenceOne(topCardData,cardData) && isCardFree(cardSprite,allCards)) {
+              scene.children.bringToTop(cardSprite);
+              scene.tweens.add({
+                targets: cardSprite,
+                x: discardPile.x,
+                y:discardPile.y,
+                duration:500,
+                ease: 'Power2',
+                onComplete: function() {
+                  cardSprite.setTexture(key);
+                  discardPile.setData("topCard",cardData);
+                  cardSprite.disableInteractive();
+                  checkAndFlipFreeCards(allCards);
+                  discardedCards.push(cardSprite);
+                  checkForEndGame(scene.drawPileCards,discardedCards,allCards,cardData);
+                }
+              });
+            }
+          });
+        }
+        
     
-    
-  }
+    }//create end
 }
