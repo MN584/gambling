@@ -180,6 +180,138 @@ export class Game extends Scene {
           });
         }
         
+        //checks if card is available to click
+        function isCardFree(card,allCards) {
+          const cardX = card.x;
+          const cardY = card.y;
+          const cardWidth = card.displayWidth;
+        //goes through allCards array, checks if card is under another carf
+          for(let i=0; i<allCards.length; i++) {
+            let otherCard = allCards[i];
+            if(otherCard === card) continue;
+            if(
+              otherCard.y === cardY+64 &&
+              otherCard.x>= cardX - (cardWidth) &&
+              otherCard.x <= cardX + (cardWidth)
+            ) {
+              return false;
+            }
+          }
+          return true;
+        }
+
+        //checks if card rank difference is 1
+        function isDifferenceOne(card1,card2) {
+          const values1 = getCardValue(card1);
+          const values2 = getCardValue(card2);
+          return values1.some(val1=>values2.some(val2 =>Math.abs(val1-val2) ===1 ));
+        }
+        //converts ranks into numerical values
+        function getCardValue(card) {
+          const valueMap = {
+            '2':2,
+            '3':3,
+            '4':4,
+            '5':5,
+            '6':6,
+            '7':7,
+            '8':8,
+            '9':9,
+            '10':10,
+            'jack':11,
+            'queen':12,
+            'king':13,
+            'ace':1
+          };
+          return card.value === 'ace' ? [1,14] : [valueMap[card.value]];
+        }
+        //
+        function checkAndFlipFreeCards(allCards) {
+          for(let i=0;i<allCards.length;i++) {
+            let key = allCards[i].data.list.card.suit+"-"+allCards[i].data.list.card.value;
+            if(isCardFree(allCards[i],allCards))
+              allCards[i].setTexture(key);
+          }
+        }
+        
+        function handleDrawPileClick(scene,drawPile,discardPile,allCards,discardedCards) {
+          drawPile.on("pointerdown",function(pointer){
+            if(scene.drawPileCards.length === 0)
+              return;
+            let topCard = scene.drawPileCards.pop();
+            let cardData = topCard.getData("card");
+            let key = `${cardData.suit}-${cardData.value}`;
+        
+            let cardSprite = scene.add.image(drawPile.x,drawPile.y,"card_back");
+            cardSprite.displayWidth = topCard.displayWidth;
+            cardSprite.displayHeight = topCard.displayHeight;
+            cardSprite.setData("card",cardData);
+        
+            scene.tweens.add({
+              targets:cardSprite,
+              x: discardPile.x,
+              y:discardPile.y,
+              duration: 500,
+              ease: "Power2",
+              onComplete: function() {
+                cardSprite.setTexture(key);
+                scene.children.bringToTop(cardSprite);
+                if(scene.drawPileCards.length === 0) {
+                  scene.add.image(drawPile.x,drawPile.y,"placeholder");
+                }
+                discardPile.setData("topCard",cardData);
+                checkForEndGame(scene.drawPileCards,discardedCards,allCards,topCard.data.list.card);
+              }
+            });
+          });
+        }
+        
+        function checkForEndGame(drawPileCards,discardedCards,allCards,topCard) {
+          if(drawPileCards.length === 0 && !isThereAnyLegalMove(allCards,topCard,discardedCards)) {
+            displayEndMessage("You lost!(womp womp)");
+          }
+          if(discardedCards.length === 28) {
+            displayEndMessage("You won!",0x048738);
+          }
+        }
+        
+        function displayEndMessage(messageText,bgColor=0xbf0a3a){
+          messageBackground.clear();
+          messageBackground.fillStyle(bgColor,1);
+          const padding = 10;
+          messageBackground.fillRoundedRect(
+            config.width/2-message.width/2-padding,
+            config.height/2- message.height/2-padding,
+            message.width+2*padding,
+            message.height+2*padding,
+            5
+          );
+          messageBackground.setVisible(true);
+          message.setText(messageText);
+          message.setAlpha(1);
+        }
+        
+        function isThereAnyLegalMove(allCards,topCard,discardedCards) {
+          allCards = allCards.filter(item=> !discardedCards.includes(item));
+          for(let i=0;i<allCards.length; i++) {
+            if(isCardFree(allCards[i],allCards) && isDifferenceOne(allCards[i].data.list.card,topCard)) {
+              return true;
+            }
+          }
+          return false;
+        }
+        
+        const config = {
+          type : Phaser.AUTO,
+          width:1000,
+          height:700,
+          scene: {
+            preload:preload,
+            create:create
+          }
+        };
+        
+        const game = new Phaser.Game(config);
     
     }//create end
 }
