@@ -96,7 +96,7 @@ export class Game extends Scene {
         let cardSprite = createCardSprite(scene, card, positions[i], i < 18);
         allCards.push(cardSprite);
 
-        handleCardInteraction(scene, cardSprite, discardPile, allCards, discardedCards);
+        handleCardInteraction(scene, cardSprite, discardPile, allCards, discardedCards)
       }
       //puts cards in draw pile
       scene.drawPileCards = [];
@@ -158,7 +158,7 @@ export class Game extends Scene {
       return cardSprite;
     }
 
-    function handleCardInteraction(scene: Game, cardSprite: Phaser.GameObjects.Image, discardPile: Phaser.GameObjects.Image, allCards, discardedCards) {
+    function handleCardInteraction(scene: Game, cardSprite: Phaser.GameObjects.Image, discardPile: Phaser.GameObjects.Image, allCards: Phaser.GameObjects.Image[], discardedCards: Deck) {
       cardSprite.on("pointerdown", function (pointer) {
         let topCardData = discardPile.getData("topCard");
         if (topCardData == undefined)
@@ -187,7 +187,7 @@ export class Game extends Scene {
     }
 
     //checks if card is available to click
-    function isCardFree(card, allCards) {
+    function isCardFree(card, allCards: Phaser.GameObjects.Image[]) {
       const cardX = card.x;
       const cardY = card.y;
       const cardWidth = card.displayWidth;
@@ -232,7 +232,7 @@ export class Game extends Scene {
       return card.value === 'ace' ? [1, 14] : [valueMap[card.value]];
     }
     //
-    function checkAndFlipFreeCards(allCards) {
+    function checkAndFlipFreeCards(allCards: Phaser.GameObjects.Image[]) {
       for (let i = 0; i < allCards.length; i++) {
         let key = allCards[i].data.list.card.suit + "-" + allCards[i].data.list.card.value;
         if (isCardFree(allCards[i], allCards))
@@ -240,7 +240,7 @@ export class Game extends Scene {
       }
     }
 
-    function handleDrawPileClick(scene, drawPile, discardPile, allCards, discardedCards) {
+    function handleDrawPileClick(scene: Game, drawPile: Phaser.GameObjects.Image, discardPile: Phaser.GameObjects.Image, allCards: Phaser.GameObjects.Image[], discardedCards: Deck) {
       drawPile.on("pointerdown", function (pointer) {
         if (scene.drawPileCards.length === 0)
           return;
@@ -272,12 +272,12 @@ export class Game extends Scene {
       });
     }
 
-    function checkForEndGame(drawPileCards, discardedCards, allCards, topCard) {
+    function checkForEndGame(drawPileCards, discardedCards, allCards:Phaser.GameObjects.Image[], topCard) {
       if (drawPileCards.length === 0 && !isThereAnyLegalMove(allCards, topCard, discardedCards)) {
         displayEndMessage("You lost!(womp womp)");
       }
       if (discardedCards.length === 28) {
-        displayEndMessage("You won(n!", 0x048738);
+        displayEndMessage("You won!", 0x048738);
       }
     }
 
@@ -297,7 +297,7 @@ export class Game extends Scene {
       this.message.setAlpha(1);
     }
 
-    function isThereAnyLegalMove(allCards, topCard, discardedCards) {
+    function isThereAnyLegalMove(allCards:Phaser.GameObjects.Image[], topCard, discardedCards) {
       allCards = allCards.filter(item => !discardedCards.includes(item));
       for (let i = 0; i < allCards.length; i++) {
         if (isCardFree(allCards[i], allCards) && isDifferenceOne(allCards[i].data.list.card, topCard)) {
